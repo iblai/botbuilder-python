@@ -13,7 +13,6 @@ try:
     from ._models_py3 import SignInUrlResponse
     from ._models_py3 import TokenExchangeRequest
     from ._models_py3 import TokenExchangeResource
-    from ._models_py3 import TokenPostResource
     from ._models_py3 import TokenResponse
     from ._models_py3 import TokenStatus
 except (SyntaxError, ImportError):
@@ -24,7 +23,6 @@ except (SyntaxError, ImportError):
     from ._models import SignInUrlResponse
     from ._models import TokenExchangeRequest
     from ._models import TokenExchangeResource
-    from ._models import TokenPostResource
     from ._models import TokenResponse
     from ._models import TokenStatus
 
@@ -37,7 +35,6 @@ __all__ = [
     "SignInUrlResponse",
     "TokenExchangeRequest",
     "TokenExchangeResource",
-    "TokenPostResource",
     "TokenResponse",
     "TokenStatus",
 ]

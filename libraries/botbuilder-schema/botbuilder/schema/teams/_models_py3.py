@@ -1,7 +1,6 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
-from enum import Enum
 from typing import List
 from msrest.serialization import Model
 from botbuilder.schema import (
@@ -88,23 +87,17 @@ class ChannelInfo(Model):
     :type id: str
     :param name: Name of the channel
     :type name: str
-    :param type: The channel type
-    :type type: str
     """
 
     _attribute_map = {
         "id": {"key": "id", "type": "str"},
         "name": {"key": "name", "type": "str"},
-        "type": {"key": "type", "type": "str"},
     }
 
-    def __init__(
-        self, *, id: str = None, name: str = None, type: str = None, **kwargs
-    ) -> None:
+    def __init__(self, *, id: str = None, name: str = None, **kwargs) -> None:
         super(ChannelInfo, self).__init__(**kwargs)
         self.id = id
         self.name = name
-        self.type = type
 
 
 class CacheInfo(Model):
@@ -1827,8 +1820,6 @@ class TeamDetails(Model):
     :type channel_count: int
     :param member_count: The count of members in the team.
     :type member_count: int
-    :param type: The team type
-    :type type: str
     """
 
     _attribute_map = {
@@ -1837,7 +1828,6 @@ class TeamDetails(Model):
         "aad_group_id": {"key": "aadGroupId", "type": "str"},
         "channel_count": {"key": "channelCount", "type": "int"},
         "member_count": {"key": "memberCount", "type": "int"},
-        "type": {"key": "type", "type": "str"},
     }
 
     def __init__(
@@ -1848,7 +1838,6 @@ class TeamDetails(Model):
         aad_group_id: str = None,
         member_count: int = None,
         channel_count: int = None,
-        type: str = None,
         **kwargs
     ) -> None:
         super(TeamDetails, self).__init__(**kwargs)
@@ -1857,7 +1846,6 @@ class TeamDetails(Model):
         self.aad_group_id = aad_group_id
         self.channel_count = channel_count
         self.member_count = member_count
-        self.type = type
 
 
 class TeamInfo(Model):
@@ -1970,26 +1958,6 @@ class TeamsPagedMembersResult(PagedMembersResult):
         self.members = members
 
 
-class TeamsChannelDataSettings(Model):
-    """
-    Represents the settings information for a Teams channel data.
-
-    :param selected_channel: Information about the selected Teams channel.
-    :type selected_channel: ~botframework.connector.teams.models.ChannelInfo
-    :param additional_properties: Gets or sets properties that are not otherwise defined by the
-     type but that might appear in the REST JSON object.
-    :type additional_properties: object
-    """
-
-    _attribute_map = {
-        "selected_channel": {"key": "selectedChannel", "type": "ChannelInfo"},
-    }
-
-    def __init__(self, *, selected_channel=None, **kwargs) -> None:
-        super(TeamsChannelDataSettings, self).__init__(**kwargs)
-        self.selected_channel = selected_channel
-
-
 class TeamsChannelData(Model):
     """Channel data specific to messages received in Microsoft Teams.
 
@@ -2006,10 +1974,6 @@ class TeamsChannelData(Model):
     :type tenant: ~botframework.connector.teams.models.TenantInfo
     :param meeting: Information about the meeting in which the message was sent
     :type meeting: ~botframework.connector.teams.models.TeamsMeetingInfo
-    :param settings: Information about the about the settings in which the message was sent
-    :type settings: ~botframework.connector.teams.models.TeamsChannelDataSettings
-    :param on_behalf_of: The OnBehalfOf list for user attribution
-    :type on_behalf_of: list[~botframework.connector.teams.models.OnBehalfOf]
     """
 
     _attribute_map = {
@@ -2019,8 +1983,6 @@ class TeamsChannelData(Model):
         "notification": {"key": "notification", "type": "NotificationInfo"},
         "tenant": {"key": "tenant", "type": "TenantInfo"},
         "meeting": {"key": "meeting", "type": "TeamsMeetingInfo"},
-        "settings": {"key": "settings", "type": "TeamsChannelDataSettings"},
-        "on_behalf_of": {"key": "onBehalfOf", "type": "[OnBehalfOf]"},
     }
 
     def __init__(
@@ -2032,8 +1994,6 @@ class TeamsChannelData(Model):
         notification=None,
         tenant=None,
         meeting=None,
-        settings: TeamsChannelDataSettings = None,
-        on_behalf_of: List["OnBehalfOf"] = None,
         **kwargs
     ) -> None:
         super(TeamsChannelData, self).__init__(**kwargs)
@@ -2044,8 +2004,6 @@ class TeamsChannelData(Model):
         self.notification = notification
         self.tenant = tenant
         self.meeting = meeting
-        self.settings = settings
-        self.on_behalf_of = on_behalf_of if on_behalf_of is not None else []
 
 
 class TenantInfo(Model):
@@ -2610,422 +2568,3 @@ class MeetingParticipantsEventDetails(Model):
     def __init__(self, *, members: List[TeamsMeetingMember] = None, **kwargs) -> None:
         super(MeetingParticipantsEventDetails, self).__init__(**kwargs)
         self.members = members
-
-
-class ReadReceiptInfo(Model):
-    """General information about a read receipt.
-
-    :param last_read_message_id: The id of the last read message.
-    :type last_read_message_id: str
-    """
-
-    _attribute_map = {
-        "last_read_message_id": {"key": "lastReadMessageId", "type": "str"},
-    }
-
-    def __init__(self, *, last_read_message_id: str = None, **kwargs) -> None:
-        super(ReadReceiptInfo, self).__init__(**kwargs)
-        self.last_read_message_id = last_read_message_id
-
-    @staticmethod
-    def is_message_read(compare_message_id, last_read_message_id):
-        """
-        Helper method useful for determining if a message has been read.
-        This method converts the strings to integers. If the compare_message_id is
-        less than or equal to the last_read_message_id, then the message has been read.
-
-        :param compare_message_id: The id of the message to compare.
-        :param last_read_message_id: The id of the last message read by the user.
-        :return: True if the compare_message_id is less than or equal to the last_read_message_id.
-        """
-        if not compare_message_id or not last_read_message_id:
-            return False
-
-        try:
-            compare_message_id_long = int(compare_message_id)
-            last_read_message_id_long = int(last_read_message_id)
-        except ValueError:
-            return False
-
-        return compare_message_id_long <= last_read_message_id_long
-
-    def is_message_read_instance(self, compare_message_id):
-        """
-        Helper method useful for determining if a message has been read.
-        If the compare_message_id is less than or equal to the last_read_message_id,
-        then the message has been read.
-
-        :param compare_message_id: The id of the message to compare.
-        :return: True if the compare_message_id is less than or equal to the last_read_message_id.
-        """
-        return ReadReceiptInfo.is_message_read(
-            compare_message_id, self.last_read_message_id
-        )
-
-
-class BotConfigAuth(Model):
-    """Specifies bot config auth, including type and suggestedActions.
-
-    :param type: The type of bot config auth.
-    :type type: str
-    :param suggested_actions: The suggested actions of bot config auth.
-    :type suggested_actions: ~botframework.connector.models.SuggestedActions
-    """
-
-    _attribute_map = {
-        "type": {"key": "type", "type": "str"},
-        "suggested_actions": {"key": "suggestedActions", "type": "SuggestedActions"},
-    }
-
-    def __init__(self, *, type: str = "auth", suggested_actions=None, **kwargs) -> None:
-        super(BotConfigAuth, self).__init__(**kwargs)
-        self.type = type
-        self.suggested_actions = suggested_actions
-
-
-class ConfigResponseBase(Model):
-    """Specifies Invoke response base, including response type.
-
-    :param response_type: Response type for invoke request
-    :type response_type: str
-    """
-
-    _attribute_map = {
-        "response_type": {"key": "responseType", "type": "str"},
-    }
-
-    def __init__(self, *, response_type: str = None, **kwargs) -> None:
-        super(ConfigResponseBase, self).__init__(**kwargs)
-        self.response_type = response_type
-
-
-class ConfigResponse(ConfigResponseBase):
-    """Envelope for Config Response Payload.
-
-    :param config: The response to the config message. Possible values: 'auth', 'task'
-    :type config: T
-    :param cache_info: Response cache info
-    :type cache_info: ~botframework.connector.teams.models.CacheInfo
-    """
-
-    _attribute_map = {
-        "config": {"key": "config", "type": "object"},
-        "cache_info": {"key": "cacheInfo", "type": "CacheInfo"},
-    }
-
-    def __init__(self, *, config=None, cache_info=None, **kwargs) -> None:
-        super(ConfigResponse, self).__init__(response_type="config", **kwargs)
-        self.config = config
-        self.cache_info = cache_info
-
-
-class ConfigTaskResponse(ConfigResponse):
-    """Envelope for Config Task Response.
-
-    This class uses TaskModuleResponseBase as the type for the config parameter.
-    """
-
-    def __init__(self, *, config=None, **kwargs) -> None:
-        super(ConfigTaskResponse, self).__init__(
-            config=config or TaskModuleResponseBase(), **kwargs
-        )
-
-
-class ConfigAuthResponse(ConfigResponse):
-    """Envelope for Config Auth Response.
-
-    This class uses BotConfigAuth as the type for the config parameter.
-    """
-
-    def __init__(self, *, config=None, **kwargs) -> None:
-        super(ConfigAuthResponse, self).__init__(
-            config=config or BotConfigAuth(), **kwargs
-        )
-
-
-class OnBehalfOf(Model):
-    """Specifies attribution for notifications.
-
-    :param item_id: The identification of the item. Default is 0.
-    :type item_id: int
-    :param mention_type: The mention type. Default is "person".
-    :type mention_type: str
-    :param mri: Message resource identifier (MRI) of the person on whose behalf the message is sent.
-    :type mri: str
-    :param display_name: Name of the person. Used as fallback in case name resolution is unavailable.
-    :type display_name: str
-    """
-
-    _attribute_map = {
-        "item_id": {"key": "itemid", "type": "int"},
-        "mention_type": {"key": "mentionType", "type": "str"},
-        "mri": {"key": "mri", "type": "str"},
-        "display_name": {"key": "displayName", "type": "str"},
-    }
-
-    def __init__(
-        self,
-        *,
-        item_id: int = 0,
-        mention_type: str = "person",
-        mri: str = None,
-        display_name: str = None,
-        **kwargs
-    ) -> None:
-        super(OnBehalfOf, self).__init__(**kwargs)
-        self.item_id = item_id
-        self.mention_type = mention_type
-        self.mri = mri
-        self.display_name = display_name
-
-
-class SurfaceType(Enum):
-    """
-    Defines Teams Surface type for use with a Surface object.
-
-    :var Unknown: TeamsSurfaceType is Unknown.
-    :vartype Unknown: int
-    :var MeetingStage: TeamsSurfaceType is MeetingStage..
-    :vartype MeetingStage: int
-    :var MeetingTabIcon: TeamsSurfaceType is MeetingTabIcon.
-    :vartype MeetingTabIcon: int
-    """
-
-    Unknown = 0
-
-    MeetingStage = 1
-
-    MeetingTabIcon = 2
-
-
-class ContentType(Enum):
-    """
-    Defines content type. Depending on contentType, content field will have a different structure.
-
-    :var Unknown: Content type is Unknown.
-    :vartype Unknown: int
-    :var Task: TContent type is Task.
-    :vartype Task: int
-    """
-
-    Unknown = 0
-
-    Task = 1
-
-
-class MeetingNotificationBase(Model):
-    """Specifies Bot meeting notification base including channel data and type.
-
-    :param type: Type of Bot meeting notification.
-    :type type: str
-    """
-
-    _attribute_map = {
-        "type": {"key": "type", "type": "str"},
-    }
-
-    def __init__(self, *, type: str = None, **kwargs) -> None:
-        super(MeetingNotificationBase, self).__init__(**kwargs)
-        self.type = type
-
-
-class MeetingNotification(MeetingNotificationBase):
-    """Specifies Bot meeting notification including meeting notification value.
-
-    :param value: Teams Bot meeting notification value.
-    :type value: TargetedMeetingNotificationValue
-    """
-
-    _attribute_map = {
-        "value": {"key": "value", "type": "TargetedMeetingNotificationValue"},
-    }
-
-    def __init__(
-        self, *, value: "TargetedMeetingNotificationValue" = None, **kwargs
-    ) -> None:
-        super(MeetingNotification, self).__init__(**kwargs)
-        self.value = value
-
-
-class MeetingNotificationChannelData(Model):
-    """Specify Teams Bot meeting notification channel data.
-
-    :param on_behalf_of_list: The Teams Bot meeting notification's OnBehalfOf list.
-    :type on_behalf_of_list: list[~botframework.connector.teams.models.OnBehalfOf]
-    """
-
-    _attribute_map = {
-        "on_behalf_of_list": {"key": "OnBehalfOf", "type": "[OnBehalfOf]"}
-    }
-
-    def __init__(self, *, on_behalf_of_list: List["OnBehalfOf"] = None, **kwargs):
-        super(MeetingNotificationChannelData, self).__init__(**kwargs)
-        self.on_behalf_of_list = on_behalf_of_list
-
-
-class MeetingNotificationRecipientFailureInfo(Model):
-    """Information regarding failure to notify a recipient of a meeting notification.
-
-    :param recipient_mri: The MRI for a recipient meeting notification failure.
-    :type recipient_mri: str
-    :param error_code: The error code for a meeting notification.
-    :type error_code: str
-    :param failure_reason: The reason why a participant meeting notification failed.
-    :type failure_reason: str
-    """
-
-    _attribute_map = {
-        "recipient_mri": {"key": "recipientMri", "type": "str"},
-        "error_code": {"key": "errorcode", "type": "str"},
-        "failure_reason": {"key": "failureReason", "type": "str"},
-    }
-
-    def __init__(
-        self,
-        *,
-        recipient_mri: str = None,
-        error_code: str = None,
-        failure_reason: str = None,
-        **kwargs
-    ):
-        super(MeetingNotificationRecipientFailureInfo, self).__init__(**kwargs)
-        self.recipient_mri = recipient_mri
-        self.error_code = error_code
-        self.failure_reason = failure_reason
-
-
-class MeetingNotificationResponse(Model):
-    """Specifies Bot meeting notification response.
-
-    Contains list of MeetingNotificationRecipientFailureInfo.
-
-    :param recipients_failure_info: The list of MeetingNotificationRecipientFailureInfo.
-    :type recipients_failure_info: list[~botframework.connector.teams.models.MeetingNotificationRecipientFailureInfo]
-    """
-
-    _attribute_map = {
-        "recipients_failure_info": {
-            "key": "recipientsFailureInfo",
-            "type": "[MeetingNotificationRecipientFailureInfo]",
-        }
-    }
-
-    def __init__(
-        self,
-        *,
-        recipients_failure_info: List["MeetingNotificationRecipientFailureInfo"] = None,
-        **kwargs
-    ):
-        super(MeetingNotificationResponse, self).__init__(**kwargs)
-        self.recipients_failure_info = recipients_failure_info
-
-
-class Surface(Model):
-    """Specifies where the notification will be rendered in the meeting UX.
-
-    :param type: The value indicating where the notification will be rendered in the meeting UX.
-    :type type: ~botframework.connector.teams.models.SurfaceType
-    """
-
-    _attribute_map = {
-        "type": {"key": "surface", "type": "SurfaceType"},
-    }
-
-    def __init__(self, *, type: SurfaceType = None, **kwargs):
-        super(Surface, self).__init__(**kwargs)
-        self.type = type
-
-
-class MeetingStageSurface(Surface):
-    """Specifies meeting stage surface.
-
-    :param content_type: The content type of this MeetingStageSurface.
-    :type content_type: ~botframework.connector.teams.models.ContentType
-    :param content: The content of this MeetingStageSurface.
-    :type content: object
-    """
-
-    _attribute_map = {
-        "content_type": {"key": "contentType", "type": "ContentType"},
-        "content": {"key": "content", "type": "object"},
-    }
-
-    def __init__(
-        self,
-        *,
-        content_type: ContentType = ContentType.Task,
-        content: object = None,
-        **kwargs
-    ):
-        super(MeetingStageSurface, self).__init__(SurfaceType.MeetingStage, **kwargs)
-        self.content_type = content_type
-        self.content = content
-
-
-class MeetingTabIconSurface(Surface):
-    """
-    Specifies meeting tab icon surface.
-
-    :param tab_entity_id: The tab entity Id of this MeetingTabIconSurface.
-    :type tab_entity_id: str
-    """
-
-    _attribute_map = {
-        "tab_entity_id": {"key": "tabEntityId", "type": "str"},
-    }
-
-    def __init__(self, *, tab_entity_id: str = None, **kwargs):
-        super(MeetingTabIconSurface, self).__init__(
-            SurfaceType.MeetingTabIcon, **kwargs
-        )
-        self.tab_entity_id = tab_entity_id
-
-
-class TargetedMeetingNotificationValue(Model):
-    """Specifies the targeted meeting notification value, including recipients and surfaces.
-
-    :param recipients: The collection of recipients of the targeted meeting notification.
-    :type recipients: list[str]
-    :param surfaces: The collection of surfaces on which to show the notification.
-    :type surfaces: list[~botframework.connector.teams.models.Surface]
-    """
-
-    _attribute_map = {
-        "recipients": {"key": "recipients", "type": "[str]"},
-        "surfaces": {"key": "surfaces", "type": "[Surface]"},
-    }
-
-    def __init__(
-        self, *, recipients: List[str] = None, surfaces: List[Surface] = None, **kwargs
-    ):
-        super(TargetedMeetingNotificationValue, self).__init__(**kwargs)
-        self.recipients = recipients
-        self.surfaces = surfaces
-
-
-class TargetedMeetingNotification(MeetingNotification):
-    """Specifies Teams targeted meeting notification.
-
-    :param value: The value of the TargetedMeetingNotification.
-    :type value: ~botframework.connector.teams.models.TargetedMeetingNotificationValue
-    :param channel_data: Teams Bot meeting notification channel data.
-    :type channel_data: ~botframework.connector.teams.models.MeetingNotificationChannelData
-    """
-
-    _attribute_map = {
-        "value": {"key": "value", "type": "TargetedMeetingNotificationValue"},
-        "channel_data": {
-            "key": "channelData",
-            "type": "MeetingNotificationChannelData",
-        },
-    }
-
-    def __init__(
-        self,
-        *,
-        value: "TargetedMeetingNotificationValue" = None,
-        channel_data: "MeetingNotificationChannelData" = None,
-        **kwargs
-    ):
-        super(TargetedMeetingNotification, self).__init__(value=value, **kwargs)
-        self.channel_data = channel_data

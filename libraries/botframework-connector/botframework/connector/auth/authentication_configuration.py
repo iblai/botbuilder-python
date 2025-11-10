@@ -40,5 +40,5 @@ class AuthenticationConfiguration:
             )
         )
         authentication_configuration.valid_token_issuers.append(                                                                    
-             f"https://sts.windows.net/{tenant_id}/"                                                                                 
-        ) 
+            f"https://sts.windows.net/{tenant_id}/"                                                                                 
+        )

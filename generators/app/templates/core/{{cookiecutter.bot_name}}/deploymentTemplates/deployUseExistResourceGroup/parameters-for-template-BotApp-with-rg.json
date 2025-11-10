@@ -15,7 +15,7 @@
             "value": ""
         },
         "newAppServicePlanLocation": {
-            "value": "West US"
+            "value": ""
         },
         "newAppServicePlanSku": {
             "value": {
@@ -26,22 +26,10 @@
                 "capacity": 1
             }
         },
-        "appType": {
-            "value": "MultiTenant"
-        },
         "appId": {
             "value": ""
         },
         "appSecret": {
-            "value": ""
-        },
-        "tenantId": {
-            "value": ""
-        },
-        "UMSIName": {
-            "value": ""
-        },
-        "UMSIResourceGroupName": {
             "value": ""
         }
     }

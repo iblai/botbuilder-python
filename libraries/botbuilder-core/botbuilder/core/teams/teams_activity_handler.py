@@ -28,7 +28,6 @@ from botbuilder.schema.teams import (
     TabRequest,
     TabSubmit,
     MeetingParticipantsEventDetails,
-    ReadReceiptInfo,
 )
 from botframework.connector import Channels
 from ..serializer_helper import deserializer_helper
@@ -56,6 +55,13 @@ class TeamsActivityHandler(ActivityHandler):
             ):
                 return await self.on_teams_card_action_invoke(turn_context)
 
+            if (
+                turn_context.activity.name
+                == SignInConstants.token_exchange_operation_name
+            ):
+                await self.on_teams_signin_token_exchange(turn_context)
+                return self._create_invoke_response()
+
             if turn_context.activity.name == "fileConsent/invoke":
                 return await self.on_teams_file_consent(
                     turn_context,
@@ -76,16 +82,6 @@ class TeamsActivityHandler(ActivityHandler):
             if turn_context.activity.name == "composeExtension/queryLink":
                 return self._create_invoke_response(
                     await self.on_teams_app_based_link_query(
-                        turn_context,
-                        deserializer_helper(
-                            AppBasedLinkQuery, turn_context.activity.value
-                        ),
-                    )
-                )
-
-            if turn_context.activity.name == "composeExtension/anonymousQueryLink":
-                return self._create_invoke_response(
-                    await self.on_teams_anonymous_app_based_link_query(
                         turn_context,
                         deserializer_helper(
                             AppBasedLinkQuery, turn_context.activity.value
@@ -189,22 +185,6 @@ class TeamsActivityHandler(ActivityHandler):
                     )
                 )
 
-            if turn_context.activity.name == "config/fetch":
-                return self._create_invoke_response(
-                    await self.on_teams_config_fetch(
-                        turn_context,
-                        turn_context.activity.value,
-                    )
-                )
-
-            if turn_context.activity.name == "config/submit":
-                return self._create_invoke_response(
-                    await self.on_teams_config_submit(
-                        turn_context,
-                        turn_context.activity.value,
-                    )
-                )
-
             return await super().on_invoke_activity(turn_context)
 
         except _InvokeResponseException as invoke_exception:
@@ -243,9 +223,7 @@ class TeamsActivityHandler(ActivityHandler):
         raise _InvokeResponseException(status_code=HTTPStatus.NOT_IMPLEMENTED)
 
     async def on_teams_signin_token_exchange(self, turn_context: TurnContext):
-        # This is for back-compat with previous versions of Python SDK.  This method does not
-        # exist in the C# SDK, and is not used in the Python SDK.
-        return await self.on_teams_signin_verify_state(turn_context)
+        raise _InvokeResponseException(status_code=HTTPStatus.NOT_IMPLEMENTED)
 
     async def on_teams_file_consent(
         self,
@@ -328,19 +306,6 @@ class TeamsActivityHandler(ActivityHandler):
     ) -> MessagingExtensionResponse:
         """
         Invoked when an app based link query activity is received from the connector.
-
-        :param turn_context: A context object for this turn.
-        :param query: The invoke request body type for app-based link query.
-
-        :returns: The Messaging Extension Response for the query.
-        """
-        raise _InvokeResponseException(status_code=HTTPStatus.NOT_IMPLEMENTED)
-
-    async def on_teams_anonymous_app_based_link_query(  # pylint: disable=unused-argument
-        self, turn_context: TurnContext, query: AppBasedLinkQuery
-    ) -> MessagingExtensionResponse:
-        """
-        Invoked when an anonymous app based link query activity is received from the connector.
 
         :param turn_context: A context object for this turn.
         :param query: The invoke request body type for app-based link query.
@@ -546,32 +511,6 @@ class TeamsActivityHandler(ActivityHandler):
         :param tab_submit: The tab submit invoke request value payload.
 
         :returns: A Tab Response for the request.
-        """
-        raise _InvokeResponseException(status_code=HTTPStatus.NOT_IMPLEMENTED)
-
-    async def on_teams_config_fetch(  # pylint: disable=unused-argument
-        self, turn_context: TurnContext, config_data: any
-    ):
-        """
-        Override this in a derived class to provide logic for when a config is fetched.
-
-        :param turn_context: A context object for this turn.
-        :param config_data: The config fetch invoke request value payload.
-
-        :returns: A Config Response for the request.
-        """
-        raise _InvokeResponseException(status_code=HTTPStatus.NOT_IMPLEMENTED)
-
-    async def on_teams_config_submit(  # pylint: disable=unused-argument
-        self, turn_context: TurnContext, config_data: any
-    ):
-        """
-        Override this in a derived class to provide logic for when a config is submitted.
-
-        :param turn_context: A context object for this turn.
-        :param config_data: The config fetch invoke request value payload.
-
-        :returns: A Config Response for the request.
         """
         raise _InvokeResponseException(status_code=HTTPStatus.NOT_IMPLEMENTED)
 
@@ -967,10 +906,6 @@ class TeamsActivityHandler(ActivityHandler):
             the scope of a channel.
         """
         if turn_context.activity.channel_id == Channels.ms_teams:
-            if turn_context.activity.name == "application/vnd.microsoft.readReceipt":
-                return await self.on_teams_read_receipt_event(
-                    turn_context.activity.value, turn_context
-                )
             if turn_context.activity.name == "application/vnd.microsoft.meetingStart":
                 return await self.on_teams_meeting_start_event(
                     turn_context.activity.value, turn_context
@@ -995,19 +930,6 @@ class TeamsActivityHandler(ActivityHandler):
                 )
 
         return await super().on_event_activity(turn_context)
-
-    async def on_teams_read_receipt_event(
-        self, read_receipt_info: ReadReceiptInfo, turn_context: TurnContext
-    ):  # pylint: disable=unused-argument
-        """
-        Override this in a derived class to provide logic for when the bot receives a read receipt event.
-
-        :param read_receipt_info: Information regarding the read receipt. i.e. Id of the message last read by the user.
-        :param turn_context: A context object for this turn.
-
-        :returns: A task that represents the work queued to execute.
-        """
-        return
 
     async def on_teams_meeting_start_event(
         self, meeting: MeetingStartEventDetails, turn_context: TurnContext
@@ -1055,76 +977,6 @@ class TeamsActivityHandler(ActivityHandler):
         Override this in a derived class to provide logic for when meeting participants are removed.
 
         :param meeting: The details of the meeting.
-        :param turn_context: A context object for this turn.
-
-        :returns: A task that represents the work queued to execute.
-        """
-        return
-
-    async def on_message_update_activity(self, turn_context: TurnContext):
-        """
-        Invoked when a message update activity is received, such as a message edit or undelete.
-
-        :param turn_context: A context object for this turn.
-
-        :returns: A task that represents the work queued to execute.
-        """
-        if turn_context.activity.channel_id == Channels.ms_teams:
-            channel_data = TeamsChannelData().deserialize(
-                turn_context.activity.channel_data
-            )
-
-            if channel_data:
-                if channel_data.event_type == "editMessage":
-                    return await self.on_teams_message_edit(turn_context)
-                if channel_data.event_type == "undeleteMessage":
-                    return await self.on_teams_message_undelete(turn_context)
-
-        return await super().on_message_update_activity(turn_context)
-
-    async def on_message_delete_activity(self, turn_context: TurnContext):
-        """
-        Invoked when a message delete activity is received, such as a soft delete message.
-
-        :param turn_context: A context object for this turn.
-
-        :returns: A task that represents the work queued to execute.
-        """
-        if turn_context.activity.channel_id == Channels.ms_teams:
-            channel_data = TeamsChannelData().deserialize(
-                turn_context.activity.channel_data
-            )
-
-            if channel_data:
-                if channel_data.event_type == "softDeleteMessage":
-                    return await self.on_teams_message_soft_delete(turn_context)
-
-        return await super().on_message_delete_activity(turn_context)
-
-    async def on_teams_message_edit(self, turn_context: TurnContext):
-        """
-        Invoked when a Teams edit message event activity is received.
-
-        :param turn_context: A context object for this turn.
-
-        :returns: A task that represents the work queued to execute.
-        """
-        return
-
-    async def on_teams_message_undelete(self, turn_context: TurnContext):
-        """
-        Invoked when a Teams undo soft delete message event activity is received.
-
-        :param turn_context: A context object for this turn.
-
-        :returns: A task that represents the work queued to execute.
-        """
-        return
-
-    async def on_teams_message_soft_delete(self, turn_context: TurnContext):
-        """
-        Invoked when a Teams soft delete message event activity is received.
-
         :param turn_context: A context object for this turn.
 
         :returns: A task that represents the work queued to execute.

@@ -26,7 +26,6 @@ from botbuilder.core import (
     StoreItem,
     TurnContext,
 )
-from botframework.connector.auth.user_token_client import UserTokenClient
 
 
 class _TokenStoreItem(StoreItem):
@@ -148,29 +147,17 @@ class TeamsSSOTokenExchangeMiddleware(Middleware):
         token_exchange_response: TokenResponse = None
         aux_dict = {}
         if turn_context.activity.value:
-            for prop in ["id", "connectionName", "token", "properties"]:
+            for prop in ["id", "connection_name", "token", "properties"]:
                 aux_dict[prop] = turn_context.activity.value.get(prop)
         token_exchange_request = TokenExchangeInvokeRequest(
             id=aux_dict["id"],
-            connection_name=aux_dict["connectionName"],
+            connection_name=aux_dict["connection_name"],
             token=aux_dict["token"],
             properties=aux_dict["properties"],
         )
         try:
             adapter = turn_context.adapter
-
-            user_token_client: UserTokenClient = turn_context.turn_state.get(
-                UserTokenClient.__name__, None
-            )
-            if user_token_client:
-                # If the adapter has UserTokenClient, use it to exchange the token.
-                token_exchange_response = await user_token_client.exchange_token(
-                    turn_context.activity.from_property.id,
-                    token_exchange_request.connection_name,
-                    turn_context.activity.channel_id,
-                    TokenExchangeRequest(token=token_exchange_request.token),
-                )
-            elif isinstance(turn_context.adapter, ExtendedUserTokenProvider):
+            if isinstance(turn_context.adapter, ExtendedUserTokenProvider):
                 token_exchange_response = await adapter.exchange_token(
                     turn_context,
                     self._oauth_connection_name,

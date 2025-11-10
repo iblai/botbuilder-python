@@ -59,7 +59,6 @@ from ._models_py3 import TaskModuleTaskInfo
 from ._models_py3 import TeamDetails
 from ._models_py3 import TeamInfo
 from ._models_py3 import TeamsChannelAccount
-from ._models_py3 import TeamsChannelDataSettings
 from ._models_py3 import TeamsChannelData
 from ._models_py3 import TeamsPagedMembersResult
 from ._models_py3 import TenantInfo
@@ -81,14 +80,6 @@ from ._models_py3 import TaskModuleCardResponse
 from ._models_py3 import UserMeetingDetails
 from ._models_py3 import TeamsMeetingMember
 from ._models_py3 import MeetingParticipantsEventDetails
-from ._models_py3 import ReadReceiptInfo
-from ._models_py3 import BotConfigAuth
-from ._models_py3 import ConfigAuthResponse
-from ._models_py3 import ConfigResponse
-from ._models_py3 import ConfigTaskResponse
-from ._models_py3 import MeetingNotificationBase
-from ._models_py3 import MeetingNotificationResponse
-from ._models_py3 import OnBehalfOf
 
 __all__ = [
     "AppBasedLinkQuery",
@@ -149,7 +140,6 @@ __all__ = [
     "TeamDetails",
     "TeamInfo",
     "TeamsChannelAccount",
-    "TeamsChannelDataSettings",
     "TeamsChannelData",
     "TeamsPagedMembersResult",
     "TenantInfo",
@@ -171,12 +161,4 @@ __all__ = [
     "UserMeetingDetails",
     "TeamsMeetingMember",
     "MeetingParticipantsEventDetails",
-    "ReadReceiptInfo",
-    "BotConfigAuth",
-    "ConfigAuthResponse",
-    "ConfigResponse",
-    "ConfigTaskResponse",
-    "MeetingNotificationBase",
-    "MeetingNotificationResponse",
-    "OnBehalfOf",
 ]

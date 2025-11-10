@@ -341,13 +341,6 @@ class OAuthPrompt(Dialog):
                     if sign_in_resource.token_exchange_resource
                     else None
                 )
-
-                json_token_ex_post = (
-                    sign_in_resource.token_post_resource.as_dict()
-                    if sign_in_resource.token_post_resource
-                    else None
-                )
-
                 prompt.attachments.append(
                     CardFactory.oauth_card(
                         OAuthCard(
@@ -362,7 +355,6 @@ class OAuthPrompt(Dialog):
                                 )
                             ],
                             token_exchange_resource=json_token_ex_resource,
-                            token_post_resource=json_token_ex_post,
                         )
                     )
                 )
