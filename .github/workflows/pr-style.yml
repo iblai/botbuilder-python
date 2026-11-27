@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: joshgummersall/pr-style@main
+      - uses: joshgummersall/pr-style@3fee1c139d76a9e6dbdd15d8895aaaf59bf6ccca # main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
